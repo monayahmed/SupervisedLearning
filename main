@@ -1,0 +1,39 @@
+import requests
+import urllib
+import pandas as pd
+from sklearn import linear_model
+from sklearn import metrics
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.model_selection import train_test_split
+import seaborn as sns
+url = "https://raw.githubusercontent.com/AdiPersonalWorks/Random/master/student_scores%20-%20student_scores.csv"
+file = urllib.request.urlopen(url)
+df=pd.read_csv(url)
+HoursData = []
+ScoresData = []
+for line in file:
+  decoded_line = line.decode("utf-8")
+  HoursData.append(decoded_line.split(',')[0])
+  ScoresData.append(decoded_line.split(',')[1])
+#print(ScoresData)
+plt.rcParams.update({'figure.figsize':(10,8), 'figure.dpi':100})
+sns.lmplot(x='Hours', y='Scores', data=df)
+plt.title("Scatter Plot with Linear fit");
+ScoreList = []
+for score in ScoresData:
+  ScoreList.append(score.replace('\r\n', ""))
+print(ScoreList)
+Dataframe = pd.DataFrame({'Hours': HoursData, 'Scores': ScoreList})
+#print(Dataframe)
+X = Dataframe.iloc[1:, :]
+X = X.drop(['Scores'], axis = 1)
+Y = Dataframe.iloc[1:, :]
+Y = Y.drop(['Hours'], axis = 1)
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2,shuffle=True,random_state=0)
+LinearModel = linear_model.LinearRegression()
+LinearModel.fit(X_train,  y_train)
+Prediction = LinearModel.predict(X_test)
+print("Mean Square Error = ", metrics.mean_squared_error(y_test, Prediction))
+Prediction = LinearModel.predict([[9.25]])
+print(Prediction)
